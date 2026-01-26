@@ -1,8 +1,8 @@
 {
   "name": "holgers-email-generator",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "KI-gestützter E-Mail-Generator mit Holgers persönlichem Stil",
+  "description": "KI-gestützter Multi-Purpose Assistent für E-Mails, Google-Rezensionen und LinkedIn",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
