@@ -162,20 +162,15 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
 
       console.log('Sending request to Anthropic API...')
       
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      // Nutze Netlify Function als Proxy (umgeht CORS)
+      const response = await fetch('/.netlify/functions/generate-email', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user',
-            content: userPrompt
-          }]
+          apiKey: apiKey,
+          prompt: userPrompt
         })
       })
 
@@ -364,4 +359,3 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
 }
 
 export default App
-
