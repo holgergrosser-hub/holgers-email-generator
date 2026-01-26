@@ -2,7 +2,7 @@
 # Version 2.0 - Für Windows 10/11
 
 # KONFIGURATION
-$AppURL = "https://holgers-email-generator.netlify.app"
+$AppURL = "https://holger-email-generator.netlify.app"
 $PreferredBrowser = "Chrome"  # Chrome, Firefox, Edge, oder Default
 
 # Header anzeigen

@@ -6,8 +6,8 @@ REM =================================================================
 
 title Holgers AI-Assistent Launcher
 
-REM KONFIGURATION - HIER DEINE URL EINTRAGEN!
-set APP_URL=https://holgers-email-generator.netlify.app
+REM KONFIGURATION
+set APP_URL=https://holger-email-generator.netlify.app
 
 REM Optional: Bestimmten Browser wählen
 REM Setze BROWSER auf: chrome, firefox, edge, oder default
