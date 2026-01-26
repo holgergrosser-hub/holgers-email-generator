@@ -1,97 +1,86 @@
 import { useState } from 'react'
 
-const EMAIL_PROMPT = `🎯 HOLGERS E-MAIL-PROMPT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const SYSTEM_PROMPT = `Du bist mein E-Mail-Assistent und schreibst im Stil von Holger Grosser (QM-Guru): kurz, direkt, klare nächste Schritte.
 
-KERNCHARAKTERISTIKEN:
+SCHREIBREGELN (sehr wichtig)
+- Deutsch.
+- Keine langen Einleitungen, keine Floskeln. 1–2 Sätze pro Absatz.
+- Immer genau 1 klare Frage ODER 1 klare nächste Aktion am Ende.
+- Bei Kunden: höflich, „Sie"-Form, freundlich.
+- Intern: kurz & knapp, gern Aufgabenliste + Links + Deadline.
+- Rechtschreibung: gerne sauberer als meine Rohfassung, aber Ton bleibt direkt.
+- Keine unnötigen Details erfinden. Wenn Daten fehlen: stelle MAXIMAL 2 Rückfragen, sonst mit Platzhaltern arbeiten: [DATUM], [LINK], [BETRAG], [ANHANG].
+- Ausgabe immer in diesem Format:
+  1) Betreff (1 Zeile)
+  2) Mailtext
+  3) Optional: „Kurzfassung (1–2 Sätze)"
 
-LÄNGE: Ultra-kurz! Ideal: 1-3 Sätze (60-120 Wörter max)
-Lange Antworten nur wenn komplex (z.B. Angebote, Kundenfragen)
+SIGNATUR
+- Extern standardmäßig: „Mit freundlichen Grüßen\\nHolger Grosser"
+- Intern standardmäßig: „VG\\nHolger"
+(Keine langen Telefon/Adresse-Blöcke ausgeben, außer ich sage explizit: SIGNATUR=LANG)
 
-TONFALL & HALTUNG:
-- Direkter und pragmatisch (nicht umständlich)
-- Professionell aber nicht steif
-- Kundenverständnis zeigen statt Argumente geben
-- Lösungsorientiert
-- Faktisch und sachlich
+LINK-INTEGRATION (nutze diese Links wenn passend)
+- QM-Guru Akademie (Schulungen, Kurse): https://qm-guru-akademie.netlify.app/
+- Auditvorbereitung (Audit-Vorbereitung, ISO): https://vorbereitung-auf-audit.netlify.app/
+- Füge Links nur ein wenn sie zum Kontext passen
+- Format: "Mehr Infos: [URL]" oder "Siehe auch: [URL]"
 
-STRUKTUR:
-1. Begrüßung: "Guten Tag," oder "Hallo," (je nach Kontext)
-2. Ein Absatz (1-2 Sätze Kernaussage)
-3. Abschluss: "Mit freundlichen Grüßen,"
-4. Signatur: "Holger Grosser"
+KATEGORIEN (wähle genau eine)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A) Kunden-Follow-up / Angebot
+- Nutze auf Wunsch diese Struktur:
+  📋 (kurzer Titel)
+  ✅ enthalten (3–6 Bulletpoints)
+  💰 Preis/Spanne (1–2 Zeilen)
+  🚀 Nächste Schritte (nummeriert 1–3)
+- Call-to-action: Rückmeldung oder Termin
 
-STANDARDFORMULIERUNGEN (NUTZE HÄUFIG):
+B) Reklamation / schwierige Situation
+- 1 Satz Entschuldigung
+- 1 Satz Klärung (Fakt/Regel)
+- 1 Satz Lösung/Plan + ggf. Erwartung (z.B. Stunden, Termin, Korrektur)
+- Abschlussfrage: „Passt das so?" / „Ist das für Sie in Ordnung?"
 
-✅ "vielen Dank für [Deine Rückmeldung/Nachricht/Frage]"
-✅ "Gerne stehen wir Ihnen zur Verfügung..."
-✅ "Bei Rückfragen stehe ich Ihnen gerne zur Verfügung"
-✅ "bitte entschuldigen Sie die Verwirrung"
-✅ "Ich habe [X] durchgeführt/erstellt/aktualisiert"
-✅ "Der Bericht/die Daten liegen im Kundenordner"
-✅ "Wie besprochen sende ich dir..."
-✅ "Gerne" (statt "wir können" oder "ist kein Problem")
-✅ "Wir können Ihre Entscheidung gut nachvollziehen"
+C) Terminabstimmung
+- Entweder 2 Terminvorschläge ODER ein Termin-Link (wenn Link vorhanden)
+- Optional: Agenda (3–6 Bulletpoints)
+- Abschluss: Bestätigung/Terminwahl
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+D) Rechnungen / Orga
+- „im Anhang … Rechnung vom [DATUM]"
+- 1 Satz Hilfe/Fragen
+- Optional: Bitte um Zahlung bis [DATUM] (nur wenn ich es angebe)
 
-WAS DU VERMEIDE UNBEDINGT:
+E) Intern kurz & knapp
+- Direktive + Kontext in 1 Satz
+- Liste: wer macht was (Namen), Deadline
+- Links danach
 
-❌ "gute Zusammenarbeit" (zu klischeehaft, sagst du nie)
-❌ "erfolgreiche Zusammenarbeit" (auch klischeehaft)
-❌ Zu lange Absätze (max. 2-3 Sätze pro Absatz)
-❌ Schmück-Adjektive ("wunderbar", "fantastisch", "hervorragend")
-❌ Übertriebene Höflichkeit
-❌ Mehrdeutige oder vage Formulierungen
-❌ "Ich habe leider..." (stattdessen: kurz und klar)
-❌ Ausschweifende Erklärungen
+F) Google-Rezension Antwort
+- Danke für Bewertung (1 Satz)
+- Bei positiv: Kurz freuen + optional Link zu weiteren Angeboten
+- Bei negativ: Verständnis zeigen + Lösung anbieten
+- Immer professionell, kurz (max. 3 Sätze)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-KONKRETE BEISPIELE AUS DEINEN ECHTEN E-MAILS:
-
-📧 BEISPIEL 1 (Standard Antwort - KURZ):
-"Guten Tag, bitte entschuldigen Sie die Verwirrung – ich habe Ihnen zwei 
-Zertifikate zugesandt. Das zweite Zertifikat ist das aktuelle und hat eine 
-Gültigkeit von zwei Jahren. Bei Rückfragen stehe ich Ihnen gerne zur Verfügung.
-Mit freundlichen Grüßen, Holger Grosser"
-
-📧 BEISPIEL 2 (Erfolgs-Update):
-"Hallo, Dokumente sind überarbeitet. Zertifikat kommt. 
-Mit freundlichen Grüßen, Holger Grosser"
-
-📧 BEISPIEL 3 (Fachliche Klärung):
-"ich habe die liste angepasst noch einmal drüber gehen und gut ist.
-Mit freundlichen Grüßen, Holger Grosser"
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-CONTEXT-REGELN:
-
-📌 Bei Absagen/Ablehnungen:
-→ Kurz, höflich, Option für Zukunft offen lassen
-
-📌 Bei Preisen/Angeboten:
-→ Kristallklar und strukturiert
-→ Alle Informationen, aber kompakt
-→ Nächste Schritte erklären
-
-📌 Bei Problemen:
-→ Entschuldigung + Lösung + Nächste Schritte
-→ Nicht zu viel Erklärung, sondern Action
-
-📌 Bei Dank/Komplimenten:
-→ Authentic, kurz, nicht übertrieben
-→ Blick nach vorne richten`
+G) LinkedIn-Kommentar
+- Kurz & prägnant (1-2 Sätze)
+- Wertschätzung oder Zustimmung
+- Optional: Eigene Perspektive hinzufügen
+- Kein Link-Spam, nur wenn wirklich relevant`
 
 function App() {
   const [formData, setFormData] = useState({
-    customerName: '',
+    category: 'email', // email, google-review, linkedin
+    responseType: 'A', // A-G kategorien
+    recipient: '',
+    duSie: 'Sie',
     context: '',
     originalMessage: '',
-    responseType: 'standard'
+    goal: '',
+    attachments: '',
+    signature: 'KURZ',
+    tone: 'Original-direkt'
   })
   
   // Load API key from localStorage on mount
@@ -99,7 +88,7 @@ function App() {
     return localStorage.getItem('anthropic_api_key') || ''
   })
   
-  const [generatedEmail, setGeneratedEmail] = useState('')
+  const [generatedText, setGeneratedText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -135,30 +124,52 @@ function App() {
     }
 
     if (!formData.originalMessage.trim()) {
-      setError('Bitte Original-Nachricht eingeben')
+      setError('Bitte Original-Nachricht / Kontext eingeben')
       return
     }
 
     setLoading(true)
     setError('')
-    setGeneratedEmail('')
+    setGeneratedText('')
 
     try {
-      const userPrompt = `${EMAIL_PROMPT}
+      // Build user prompt based on category
+      let userPrompt = `${SYSTEM_PROMPT}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-AUFGABE:
-Schreibe eine E-Mail-Antwort auf die folgende Nachricht in Holgers Stil.
-
-${formData.customerName ? `KUNDE: ${formData.customerName}` : ''}
-${formData.context ? `KONTEXT: ${formData.context}` : ''}
-ANTWORTTYP: ${formData.responseType}
+INPUT:
+`
+      
+      if (formData.category === 'email') {
+        userPrompt += `Kategorie: ${formData.responseType}
+Empfänger: ${formData.recipient || '[Nicht angegeben]'}
+Du/Sie: ${formData.duSie}
+Kontext: ${formData.context || '[Siehe Original-Nachricht]'}
+Ziel/CTA: ${formData.goal || '[Antwort generieren]'}
+Anhänge/Links: ${formData.attachments || '[Keine]'}
+SIGNATUR: ${formData.signature}
+Ton: ${formData.tone}
 
 ORIGINAL-NACHRICHT:
 ${formData.originalMessage}
 
-Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
+Erstelle JETZT die E-Mail-Antwort basierend auf diesen Angaben.`
+      } else if (formData.category === 'google-review') {
+        userPrompt += `TYP: Google-Rezension Antwort (Kategorie F)
+
+REZENSION:
+${formData.originalMessage}
+
+Erstelle JETZT eine professionelle Antwort auf diese Google-Rezension. Kurz, wertschätzend, max. 3 Sätze. Füge passende Links ein wenn relevant.`
+      } else if (formData.category === 'linkedin') {
+        userPrompt += `TYP: LinkedIn-Kommentar (Kategorie G)
+
+POST/KOMMENTAR:
+${formData.originalMessage}
+
+Erstelle JETZT einen professionellen LinkedIn-Kommentar. Kurz & prägnant, 1-2 Sätze. Nur relevante Links einbauen.`
+      }
 
       console.log('Sending request to Anthropic API...')
       
@@ -198,13 +209,13 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
         throw new Error('Ungültige API-Antwort erhalten')
       }
       
-      const emailText = data.content[0].text
-      setGeneratedEmail(emailText)
+      const text = data.content[0].text
+      setGeneratedText(text)
     } catch (err) {
-      console.error('Error generating email:', err)
+      console.error('Error generating text:', err)
       
       if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-        setError('Netzwerkfehler: Bitte überprüfe deine Internetverbindung. Falls du einen Ad-Blocker verwendest, deaktiviere ihn für diese Seite.')
+        setError('Netzwerkfehler: Bitte überprüfe deine Internetverbindung.')
       } else {
         setError(err.message || 'Ein unbekannter Fehler ist aufgetreten')
       }
@@ -214,26 +225,32 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
   }
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedEmail)
-    alert('E-Mail in Zwischenablage kopiert!')
+    navigator.clipboard.writeText(generatedText)
+    alert('Text in Zwischenablage kopiert!')
   }
 
   const resetForm = () => {
     setFormData({
-      customerName: '',
+      category: 'email',
+      responseType: 'A',
+      recipient: '',
+      duSie: 'Sie',
       context: '',
       originalMessage: '',
-      responseType: 'standard'
+      goal: '',
+      attachments: '',
+      signature: 'KURZ',
+      tone: 'Original-direkt'
     })
-    setGeneratedEmail('')
+    setGeneratedText('')
     setError('')
   }
 
   return (
     <div className="container">
       <header>
-        <h1>📧 Holgers E-Mail Generator</h1>
-        <p>KI-gestützte E-Mail-Antworten in deinem persönlichen Stil</p>
+        <h1>🤖 Holgers AI-Assistent</h1>
+        <p>E-Mails • Google-Rezensionen • LinkedIn-Kommentare</p>
       </header>
 
       <div className="api-key-section">
@@ -255,58 +272,161 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
       </div>
 
       <div className="form-section">
+        {/* Category Selection */}
         <div className="form-group">
           <label>
-            Kundenname (optional)
-            <input
-              type="text"
-              name="customerName"
-              value={formData.customerName}
-              onChange={handleInputChange}
-              placeholder="z.B. Firma Mustermann GmbH"
-            />
-          </label>
-        </div>
-
-        <div className="form-group">
-          <label>
-            Kontext (optional)
-            <input
-              type="text"
-              name="context"
-              value={formData.context}
-              onChange={handleInputChange}
-              placeholder="z.B. Zertifikat, Audit, Angebot"
-            />
-          </label>
-        </div>
-
-        <div className="form-group">
-          <label>
-            Antworttyp
+            📝 Typ
             <select
-              name="responseType"
-              value={formData.responseType}
+              name="category"
+              value={formData.category}
               onChange={handleInputChange}
             >
-              <option value="standard">Standard Antwort</option>
-              <option value="angebot">Angebot / Preis</option>
-              <option value="absage">Absage / Ablehnung</option>
-              <option value="problem">Problem / Entschuldigung</option>
-              <option value="erfolg">Erfolgs-Update</option>
+              <option value="email">E-Mail</option>
+              <option value="google-review">Google-Rezension Antwort</option>
+              <option value="linkedin">LinkedIn-Kommentar</option>
             </select>
           </label>
         </div>
 
+        {/* Email-specific fields */}
+        {formData.category === 'email' && (
+          <>
+            <div className="form-group">
+              <label>
+                Kategorie
+                <select
+                  name="responseType"
+                  value={formData.responseType}
+                  onChange={handleInputChange}
+                >
+                  <option value="A">A - Kunden-Follow-up / Angebot</option>
+                  <option value="B">B - Reklamation / schwierige Situation</option>
+                  <option value="C">C - Terminabstimmung</option>
+                  <option value="D">D - Rechnungen / Orga</option>
+                  <option value="E">E - Intern kurz & knapp</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>
+                  Empfänger (optional)
+                  <input
+                    type="text"
+                    name="recipient"
+                    value={formData.recipient}
+                    onChange={handleInputChange}
+                    placeholder="z.B. Firma Mustermann GmbH"
+                  />
+                </label>
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Anrede
+                  <select
+                    name="duSie"
+                    value={formData.duSie}
+                    onChange={handleInputChange}
+                  >
+                    <option value="Sie">Sie (formell)</option>
+                    <option value="Du">Du (informell)</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>
+                Kontext (optional)
+                <input
+                  type="text"
+                  name="context"
+                  value={formData.context}
+                  onChange={handleInputChange}
+                  placeholder="z.B. ISO 9001 Zertifizierung, Audit, Angebot"
+                />
+              </label>
+            </div>
+
+            <div className="form-group">
+              <label>
+                Ziel / Call-to-Action (optional)
+                <input
+                  type="text"
+                  name="goal"
+                  value={formData.goal}
+                  onChange={handleInputChange}
+                  placeholder="z.B. Termin vereinbaren, Rückmeldung erhalten"
+                />
+              </label>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>
+                  Signatur
+                  <select
+                    name="signature"
+                    value={formData.signature}
+                    onChange={handleInputChange}
+                  >
+                    <option value="KURZ">Kurz (Standard)</option>
+                    <option value="LANG">Lang (mit Kontakt)</option>
+                    <option value="NONE">Keine</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Ton
+                  <select
+                    name="tone"
+                    value={formData.tone}
+                    onChange={handleInputChange}
+                  >
+                    <option value="Original-direkt">Original-direkt</option>
+                    <option value="Polished-direkt">Polished-direkt</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>
+                Anhänge / Links (optional)
+                <input
+                  type="text"
+                  name="attachments"
+                  value={formData.attachments}
+                  onChange={handleInputChange}
+                  placeholder="z.B. Rechnung.pdf, Vertrag.docx"
+                />
+              </label>
+            </div>
+          </>
+        )}
+
+        {/* Original Message - for all types */}
         <div className="form-group">
           <label>
-            Original-Nachricht *
+            {formData.category === 'email' && 'Original-Nachricht *'}
+            {formData.category === 'google-review' && 'Google-Rezension *'}
+            {formData.category === 'linkedin' && 'LinkedIn-Post / Kommentar *'}
             <textarea
               name="originalMessage"
               value={formData.originalMessage}
               onChange={handleInputChange}
-              placeholder="Füge hier die Original-E-Mail oder Nachricht ein..."
-              rows="6"
+              placeholder={
+                formData.category === 'email' 
+                  ? "Füge hier die Original-E-Mail oder Nachricht ein..."
+                  : formData.category === 'google-review'
+                  ? "Füge hier die Google-Rezension ein..."
+                  : "Füge hier den LinkedIn-Post oder Kommentar ein..."
+              }
+              rows="8"
               required
             />
           </label>
@@ -318,7 +438,7 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
             disabled={loading}
             className="btn-primary"
           >
-            {loading ? '⏳ Generiere...' : '✨ E-Mail generieren'}
+            {loading ? '⏳ Generiere...' : '✨ Text generieren'}
           </button>
           <button onClick={resetForm} className="btn-secondary">
             🔄 Zurücksetzen
@@ -332,16 +452,16 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
         )}
       </div>
 
-      {generatedEmail && (
+      {generatedText && (
         <div className="result-section">
           <div className="result-header">
-            <h2>📨 Generierte E-Mail</h2>
+            <h2>📨 Generierter Text</h2>
             <button onClick={copyToClipboard} className="btn-copy">
               📋 Kopieren
             </button>
           </div>
           <div className="result-content">
-            <pre>{generatedEmail}</pre>
+            <pre>{generatedText}</pre>
           </div>
         </div>
       )}
