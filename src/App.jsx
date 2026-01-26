@@ -93,10 +93,26 @@ function App() {
     originalMessage: '',
     responseType: 'standard'
   })
-  const [apiKey, setApiKey] = useState('')
+  
+  // Load API key from localStorage on mount
+  const [apiKey, setApiKey] = useState(() => {
+    return localStorage.getItem('anthropic_api_key') || ''
+  })
+  
   const [generatedEmail, setGeneratedEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Save API key to localStorage when it changes
+  const handleApiKeyChange = (e) => {
+    const newKey = e.target.value
+    setApiKey(newKey)
+    if (newKey.trim()) {
+      localStorage.setItem('anthropic_api_key', newKey)
+    } else {
+      localStorage.removeItem('anthropic_api_key')
+    }
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -107,8 +123,14 @@ function App() {
   }
 
   const generateEmail = async () => {
+    // Validierung
     if (!apiKey.trim()) {
       setError('Bitte Anthropic API Key eingeben')
+      return
+    }
+
+    if (!apiKey.startsWith('sk-ant-')) {
+      setError('API Key muss mit "sk-ant-" beginnen. Bitte überprüfe deinen Key.')
       return
     }
 
@@ -138,6 +160,8 @@ ${formData.originalMessage}
 
 Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
 
+      console.log('Sending request to Anthropic API...')
+      
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -155,16 +179,40 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
         })
       })
 
+      console.log('Response status:', response.status)
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error?.message || 'API Fehler')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', errorData)
+        
+        if (response.status === 401) {
+          throw new Error('Ungültiger API Key. Bitte überprüfe deinen Key.')
+        } else if (response.status === 429) {
+          throw new Error('Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.')
+        } else if (response.status === 500) {
+          throw new Error('Server-Fehler bei Anthropic. Bitte versuche es später erneut.')
+        } else {
+          throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`)
+        }
       }
 
       const data = await response.json()
+      console.log('API Response:', data)
+      
+      if (!data.content || !data.content[0] || !data.content[0].text) {
+        throw new Error('Ungültige API-Antwort erhalten')
+      }
+      
       const emailText = data.content[0].text
       setGeneratedEmail(emailText)
     } catch (err) {
-      setError(`Fehler: ${err.message}`)
+      console.error('Error generating email:', err)
+      
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        setError('Netzwerkfehler: Bitte überprüfe deine Internetverbindung. Falls du einen Ad-Blocker verwendest, deaktiviere ihn für diese Seite.')
+      } else {
+        setError(err.message || 'Ein unbekannter Fehler ist aufgetreten')
+      }
     } finally {
       setLoading(false)
     }
@@ -199,12 +247,12 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
           <input
             type="password"
             value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
+            onChange={handleApiKeyChange}
             placeholder="sk-ant-..."
           />
         </label>
         <small>
-          Dein API Key wird nur im Browser gespeichert und nie an andere Server gesendet.
+          Dein API Key wird lokal im Browser gespeichert und nie an andere Server gesendet.
           <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">
             API Key erstellen →
           </a>
@@ -316,3 +364,4 @@ Erstelle JETZT die E-Mail-Antwort (nur die E-Mail, keine Erklärungen):`
 }
 
 export default App
+
